@@ -1,0 +1,1968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>echo — a notebook that thinks alongside you</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/png" href="assets/AppIcon1024.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #fafaf9;
+    --bg-2: #f4f3f0;
+    --surface: #ffffff;
+    --ink: #0c0c0a;
+    --ink-2: #2c2a26;
+    --ink-3: #5a5750;
+    --ink-muted: #8a867d;
+    --ink-faint: #b8b4aa;
+    --rule: rgba(12,12,10,0.08);
+    --rule-strong: rgba(12,12,10,0.14);
+    --accent: #d97757;
+    --accent-ink: #ffffff;
+    --accent-tint: rgba(217,119,87,0.08);
+    --accent-strong: #b9583c;
+    --blue: #3478f6;
+    --blue-tint: rgba(52,120,246,0.10);
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --shadow-sm: 0 1px 0 rgba(12,12,10,0.04), 0 1px 2px rgba(12,12,10,0.04);
+    --shadow: 0 0 0 0.5px rgba(12,12,10,0.04), 0 1px 2px rgba(12,12,10,0.04), 0 12px 28px rgba(12,12,10,0.08);
+    --shadow-lg: 0 0 0 0.5px rgba(12,12,10,0.06), 0 2px 4px rgba(12,12,10,0.06), 0 24px 60px rgba(12,12,10,0.14);
+    --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+    --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+    --font-hand: 'Caveat', 'Bradley Hand', 'Comic Sans MS', cursive;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; padding: 0;
+    font-family: var(--font-sans);
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11', 'ss01';
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ===== Nav ===== */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,250,249,0.78);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .nav-inner {
+    display: flex; align-items: center;
+    height: 56px;
+    gap: 32px;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-display);
+    font-size: 17px; font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+  .brand-dot {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: url('assets/AppIcon1024.png') center/cover no-repeat;
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 24px;
+    font-size: 13.5px;
+    color: var(--ink-3);
+  }
+  .nav-links a { transition: color 0.12s ease; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 36px; padding: 0 16px;
+    font-family: var(--font-sans);
+    font-size: 13.5px; font-weight: 500;
+    letter-spacing: -0.01em;
+    border-radius: 8px;
+    border: 0.5px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.12s ease, transform 0.05s ease;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--bg-2); }
+  .btn:active { transform: translateY(0.5px); }
+  .btn-ghost {
+    background: transparent; border-color: transparent;
+    color: var(--ink-2);
+  }
+  .btn-ghost:hover { background: var(--bg-2); color: var(--ink); }
+  .btn-primary {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+    box-shadow: inset 0 0.5px 0 rgba(255,255,255,0.2);
+  }
+  .btn-primary:hover { background: #1f1d1a; }
+  .btn-lg { height: 44px; padding: 0 20px; font-size: 14.5px; border-radius: 10px; }
+
+  /* ===== Hero ===== */
+  .hero {
+    padding: 96px 0 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle 600px at 50% -200px, rgba(217,119,87,0.10), transparent 60%),
+      radial-gradient(circle 800px at 80% 40%, rgba(217,119,87,0.04), transparent 70%);
+  }
+  .hero-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 12px 4px 6px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 0.5px solid var(--rule-strong);
+    box-shadow: var(--shadow-sm);
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-bottom: 28px;
+  }
+  .hero-pill-badge {
+    display: inline-flex; align-items: center;
+    height: 18px; padding: 0 7px;
+    border-radius: 999px;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .hero-pill-arrow { color: var(--ink-faint); }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 6.5vw, 76px);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 24px;
+    max-width: 920px;
+    text-wrap: balance;
+  }
+  .hero-title em {
+    font-style: normal;
+    color: var(--accent-strong);
+    position: relative;
+  }
+  .hero-sub {
+    font-size: clamp(16px, 1.4vw, 19px);
+    line-height: 1.55;
+    color: var(--ink-3);
+    margin: 0 0 36px;
+    max-width: 620px;
+    text-wrap: pretty;
+  }
+  .hero-cta {
+    display: flex; gap: 10px; align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 56px;
+  }
+  .hero-cta .meta {
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    margin-left: 8px;
+  }
+
+  /* Product screenshot frame */
+  .hero-shot {
+    position: relative;
+    margin-top: 12px;
+    border-radius: var(--radius-xl);
+    background: linear-gradient(180deg, #ebe8e1 0%, #d8d4cb 100%);
+    padding: 10px;
+    box-shadow: var(--shadow-lg);
+  }
+  .hero-shot::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: var(--radius-xl);
+    border: 0.5px solid rgba(12,12,10,0.08);
+    pointer-events: none;
+  }
+  .hero-shot-inner {
+    border-radius: 18px;
+    background: #fff;
+    overflow: hidden;
+    aspect-ratio: 1440 / 880;
+    position: relative;
+  }
+
+  /* ===== Mac mock — matches real app chrome ===== */
+  .mac {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-rows: 44px 1fr;
+    font-family: var(--font-sans);
+    background: var(--bg);
+  }
+  .mac-chrome {
+    display: flex; align-items: center;
+    padding: 0 14px;
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--rule);
+    gap: 10px;
+  }
+  .mac-lights { display: flex; gap: 8px; }
+  .mac-light { width: 11px; height: 11px; border-radius: 50%; box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.2); }
+  .mac-light.r { background: radial-gradient(circle at 35% 30%, #ff7b73, #ff5f57 65%); }
+  .mac-light.y { background: radial-gradient(circle at 35% 30%, #ffd176, #febc2e 65%); }
+  .mac-light.g { background: radial-gradient(circle at 35% 30%, #41d06d, #28c940 65%); }
+
+  .mac-sidebar-toggle {
+    width: 26px; height: 26px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink-3);
+    margin-left: 4px;
+  }
+  .mac-sidebar-toggle svg { width: 14px; height: 14px; }
+
+  /* Pill-style mode tabs (matches real app) */
+  .mac-tabs {
+    display: inline-flex; align-items: center;
+    gap: 2px;
+    margin-left: 24px;
+  }
+  .mac-tab {
+    height: 26px; padding: 0 14px;
+    border-radius: 999px;
+    font-size: 12.5px; color: var(--ink-3); font-weight: 500;
+    display: inline-flex; align-items: center;
+    letter-spacing: -0.01em;
+  }
+  .mac-tab.active {
+    background: var(--ink); color: #fff;
+  }
+  .mac-spacer { flex: 1; }
+  .mac-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* View / Edit segmented (notebook only) */
+  .mac-view-toggle {
+    display: inline-flex;
+    background: var(--bg-2);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 1px;
+  }
+  .mac-view-toggle .seg {
+    height: 24px; padding: 0 10px;
+    font-size: 12px; color: var(--ink-3); font-weight: 500;
+    border-radius: 6px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .mac-view-toggle .seg.active {
+    background: #fff; color: var(--ink);
+    box-shadow: 0 0 0 0.5px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .mac-view-toggle .seg svg { width: 11px; height: 11px; }
+
+  .mac-btn-action {
+    height: 28px; padding: 0 12px;
+    font-size: 12.5px; font-weight: 500;
+    border-radius: 8px;
+    background: var(--accent); color: #fff;
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 0; letter-spacing: -0.01em;
+  }
+  .mac-btn-action.ask { background: var(--blue); }
+  .mac-btn-action.ghost {
+    background: var(--bg-2); color: var(--ink);
+  }
+  .mac-btn-action svg { width: 12px; height: 12px; }
+
+  /* Body: sidebar | chat | canvas */
+  .mac-body { display: grid; grid-template-columns: 220px 1fr 1.05fr; min-height: 0; }
+  .mac-sidebar {
+    background: #ecebe7;
+    border-right: 0.5px solid var(--rule);
+    padding: 14px 10px;
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 13px;
+    position: relative;
+  }
+  .mac-nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    color: var(--ink-2);
+    cursor: default;
+  }
+  .mac-nav-item:hover { background: rgba(0,0,0,0.04); }
+  .mac-nav-item svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--ink-3); }
+
+  .mac-sidebar-section {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; color: var(--ink-muted);
+    padding: 16px 10px 4px;
+    font-weight: 500;
+  }
+  .mac-sidebar-section .icons { display: flex; gap: 8px; color: var(--ink-faint); }
+  .mac-sidebar-section .icons svg { width: 11px; height: 11px; }
+
+  .mac-chat-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12.5px; color: var(--ink-2);
+    cursor: default;
+  }
+  .mac-chat-item .time { font-size: 11px; color: var(--ink-muted); }
+  .mac-chat-item.selected { background: rgba(0,0,0,0.05); color: var(--ink); }
+  .mac-chat-item:hover:not(.selected) { background: rgba(0,0,0,0.03); }
+
+  .mac-sidebar-footer {
+    margin-top: auto;
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px;
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .mac-sidebar-footer svg { width: 14px; height: 14px; }
+
+  /* Chat column */
+  .mac-chat {
+    background: #fff;
+    border-right: 0.5px solid var(--rule);
+    padding: 16px 24px 14px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+  .mac-sources-pill {
+    position: absolute;
+    top: 14px; right: 16px;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px;
+    background: #fff;
+    border: 0.5px solid var(--rule-strong);
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+    font-size: 11.5px; color: var(--ink-2);
+    font-family: var(--font-mono);
+  }
+  .mac-sources-pill .count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 16px; height: 16px;
+    border-radius: 999px;
+    background: var(--blue);
+    color: #fff;
+    font-size: 10px; font-weight: 600;
+    padding: 0 5px;
+  }
+
+  .mac-msg { margin-bottom: 16px; }
+  .mac-msg-head {
+    display: flex; gap: 8px; align-items: baseline;
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
+  }
+  .mac-msg-head .avatar {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14px; height: 14px;
+    border-radius: 4px;
+    color: var(--ink-3);
+  }
+  .mac-msg-head .avatar svg { width: 11px; height: 11px; }
+  .mac-msg-head .avatar.ai { color: var(--accent-strong); }
+  .mac-msg-head b { color: var(--ink); font-weight: 600; font-family: var(--font-sans); font-size: 12px; }
+  .mac-msg-head .t { color: var(--ink-muted); }
+  .mac-msg-body {
+    font-size: 13px; line-height: 1.55; color: var(--ink);
+    margin-left: 22px;
+  }
+  .mac-msg-img {
+    margin-top: 8px;
+    display: inline-block;
+    width: 280px; height: 160px;
+    border-radius: 8px;
+    background:
+      linear-gradient(135deg, rgba(217,119,87,0.06), rgba(217,119,87,0.02)),
+      repeating-linear-gradient(45deg, #f4f1ec 0 10px, #ecebe7 10px 20px);
+    border: 0.5px solid var(--rule-strong);
+    position: relative;
+    overflow: hidden;
+  }
+  .mac-msg-img::after {
+    content: 'flowchart.png';
+    position: absolute;
+    bottom: 6px; left: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+  }
+
+  .mac-composer {
+    margin-top: auto;
+    background: #fff;
+    border: 0.5px solid var(--rule-strong);
+    border-radius: 14px;
+    padding: 12px 14px 10px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.05);
+    position: relative;
+  }
+  .mac-composer-text {
+    font-size: 13.5px; color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+  .mac-composer-bar {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--ink-muted);
+  }
+  .mac-composer-bar svg { width: 15px; height: 15px; }
+  .mac-composer-bar .spacer { flex: 1; }
+  .mac-model {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--blue);
+  }
+  .mac-composer-send {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12.5px; font-weight: 500;
+    display: inline-flex; gap: 6px; align-items: center;
+    opacity: 0.85;
+  }
+  .mac-composer-send svg { width: 12px; height: 12px; }
+
+  /* Canvas — Excalidraw hand-drawn style */
+  .mac-canvas {
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+    padding: 22px 26px;
+  }
+  .canv-title {
+    font-family: var(--font-hand);
+    font-size: 22px; font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+    letter-spacing: -0.01em;
+  }
+  .canv-sub {
+    font-family: var(--font-hand);
+    font-size: 13.5px;
+    color: var(--ink-muted);
+    margin-bottom: 18px;
+  }
+  .ex-box {
+    position: absolute;
+    border: 1.5px solid var(--ink);
+    border-radius: 10px;
+    padding: 6px 10px;
+    background: #fff;
+    font-family: var(--font-hand);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.15;
+    /* Hand-drawn feel: slight rotation + soft outer */
+    box-shadow: 1px 1px 0 rgba(12,12,10,0.04);
+  }
+  .ex-box.tint-green {
+    background: #d6efd9; border-color: #4a8b54;
+    color: #1e3e23;
+  }
+  .ex-box.tint-blue {
+    background: #d6e6f7; border-color: #3a6ea8;
+    color: #1d3b5e;
+  }
+  .ex-box.tint-yellow {
+    background: #fff2c4; border-color: #b58a26;
+    color: #4a3a10;
+  }
+  .ex-box.tint-pink {
+    background: #f8d8d8; border-color: #b85858;
+    color: #5b2222;
+  }
+  .ex-box .meta {
+    font-family: var(--font-hand);
+    font-size: 12px;
+    color: var(--ink-3);
+    font-weight: 500;
+    margin-top: 2px;
+    opacity: 0.85;
+  }
+  .ex-box.diamond {
+    transform: rotate(0deg);
+    border-radius: 4px;
+  }
+  .ex-ellipse {
+    position: absolute;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    padding: 6px 14px;
+    background: #fff;
+    font-family: var(--font-hand);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    box-shadow: 1px 1px 0 rgba(12,12,10,0.04);
+  }
+  .ex-ellipse.tint-green {
+    background: #d6efd9; border-color: #4a8b54;
+    color: #1e3e23;
+  }
+  .ex-ellipse.tint-red {
+    background: #f8d8d8; border-color: #b85858;
+    color: #5b2222;
+  }
+  .ex-label {
+    position: absolute;
+    font-family: var(--font-hand);
+    font-size: 13px;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+
+  /* Logo strip */
+  .logos {
+    padding: 56px 0 32px;
+    border-top: 0.5px solid var(--rule);
+  }
+  .logos-title {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .logos-row {
+    display: flex; justify-content: center; align-items: center;
+    gap: 56px; flex-wrap: wrap;
+    color: var(--ink-faint);
+    font-family: var(--font-display);
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .logos-row span { opacity: 0.55; }
+
+  /* ===== Features (bento) ===== */
+  .section {
+    padding: 96px 0;
+  }
+  .section-head {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    color: var(--accent-strong);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(30px, 3.6vw, 44px);
+    letter-spacing: -0.025em;
+    font-weight: 600;
+    line-height: 1.1;
+    margin: 0 auto 16px;
+    max-width: 740px;
+    text-wrap: balance;
+  }
+  .section-sub {
+    font-size: 16px; line-height: 1.55;
+    color: var(--ink-3);
+    max-width: 580px;
+    margin: 0 auto;
+    text-wrap: pretty;
+  }
+
+  .bento {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    grid-template-rows: 320px 280px 280px;
+    gap: 16px;
+  }
+  .bento-card {
+    background: var(--surface);
+    border: 0.5px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .bento-card h3 {
+    font-family: var(--font-display);
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.015em;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  .bento-card p {
+    font-size: 14px; line-height: 1.55;
+    color: var(--ink-3);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .bento-card .visual {
+    flex: 1;
+    margin-top: 20px;
+    position: relative;
+  }
+  .b-canvas    { grid-column: 1 / 2; grid-row: 1 / 3; }
+  .b-chat      { grid-column: 2 / 4; grid-row: 1 / 2; }
+  .b-wiki      { grid-column: 2 / 3; grid-row: 2 / 3; }
+  .b-sources   { grid-column: 3 / 4; grid-row: 2 / 3; }
+  .b-multimode { grid-column: 1 / 3; grid-row: 3 / 4; }
+  .b-export    { grid-column: 3 / 4; grid-row: 3 / 4; }
+
+  .b-canvas .visual { display: flex; align-items: stretch; }
+  .mini-canvas {
+    width: 100%; height: 100%;
+    background: #fff;
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    padding: 14px;
+  }
+
+  /* Chat-card visual */
+  .visual-chat {
+    display: flex; flex-direction: column; gap: 12px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .v-msg {
+    display: flex; gap: 10px;
+  }
+  .v-msg .v-avatar {
+    flex-shrink: 0;
+    width: 16px; height: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+  .v-msg .v-avatar svg { width: 12px; height: 12px; }
+  .v-msg .v-avatar.ai { color: var(--accent-strong); }
+  .v-msg-body { flex: 1; min-width: 0; }
+  .v-msg-meta {
+    font-size: 11px; color: var(--ink-muted);
+    margin-bottom: 3px;
+  }
+  .v-msg-meta b { color: var(--ink); font-weight: 600; font-size: 12px; margin-right: 6px; }
+  .v-msg-text { color: var(--ink); }
+  .v-msg-img {
+    margin-top: 8px;
+    display: flex; gap: 6px;
+  }
+  .v-msg-img-chip {
+    height: 42px; width: 68px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #d8d4cb, #ebe8e1);
+    border: 0.5px solid var(--rule-strong);
+  }
+
+  /* Wiki card — index list style */
+  .visual-wiki {
+    height: 100%;
+    display: flex; flex-direction: column; gap: 4px;
+    overflow: hidden;
+  }
+  .v-wiki-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    font-size: 12.5px; color: var(--ink-2);
+  }
+  .v-wiki-row .v-wiki-icon {
+    width: 14px; height: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink-muted);
+    flex-shrink: 0;
+  }
+  .v-wiki-row .v-wiki-icon svg { width: 11px; height: 11px; }
+  .v-wiki-row .v-wiki-name { font-weight: 500; color: var(--ink); flex: 1; min-width: 0; }
+  .v-wiki-row .v-wiki-meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-muted); }
+  .v-wiki-row.active { background: var(--bg-2); }
+
+  /* Sources card */
+  .visual-sources {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .v-src {
+    background: var(--bg-2);
+    border-radius: 8px;
+    padding: 9px 11px;
+    display: flex; gap: 10px; align-items: center;
+    font-size: 12.5px;
+    color: var(--ink-2);
+  }
+  .v-src-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: #fff;
+    border: 0.5px solid var(--rule-strong);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px; color: var(--ink-muted);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .v-src .name { font-weight: 500; color: var(--ink); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .v-src .meta { font-family: var(--font-mono); font-size: 10px; color: var(--ink-muted); }
+
+  /* Multi-mode card visual */
+  .visual-modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; height: 100%;
+  }
+  .v-mode {
+    background: var(--bg-2);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 6px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .v-mode-icon {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: var(--ink);
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 4px;
+  }
+  .v-mode-icon svg { width: 14px; height: 14px; }
+  .v-mode-icon.accent { background: var(--accent); }
+  .v-mode-icon.blue { background: var(--blue); }
+  .v-mode strong { font-weight: 600; color: var(--ink); font-size: 13px; letter-spacing: -0.01em; }
+  .v-mode span { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-muted); }
+
+  /* Export card */
+  .visual-export {
+    display: flex; flex-direction: column; gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--ink-3);
+  }
+  .v-export-row {
+    display: flex; gap: 8px; align-items: center;
+    padding: 8px 11px;
+    background: var(--bg-2);
+    border-radius: 7px;
+  }
+  .v-export-row strong { color: var(--ink); font-weight: 600; font-family: var(--font-mono); }
+
+  /* ===== Workflow ===== */
+  .workflow-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    counter-reset: step;
+  }
+  .workflow-step {
+    counter-increment: step;
+    position: relative;
+    padding-top: 32px;
+  }
+  .workflow-step::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute; top: 0; left: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent-strong);
+    letter-spacing: 0.04em;
+  }
+  .workflow-step h3 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin: 0 0 10px;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  .workflow-step p {
+    font-size: 14.5px; line-height: 1.6;
+    color: var(--ink-3);
+    margin: 0 0 20px;
+    text-wrap: pretty;
+  }
+  .workflow-shot {
+    aspect-ratio: 16 / 11;
+    background: var(--surface);
+    border: 0.5px solid var(--rule);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+
+  /* ===== Demo ===== */
+  .demo-frame {
+    margin: 56px auto 0;
+    max-width: 1080px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, #ebe8e1 0%, #d8d4cb 100%);
+    padding: 8px;
+    box-shadow: var(--shadow-lg);
+  }
+  .demo-inner {
+    border-radius: 12px;
+    background: var(--bg);
+    overflow: hidden;
+    aspect-ratio: 1440 / 880;
+    position: relative;
+  }
+  .demo-tabs {
+    display: flex; gap: 6px; justify-content: center;
+    margin: 0 auto 16px;
+    flex-wrap: wrap;
+  }
+  .demo-tab {
+    padding: 7px 14px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 0.5px solid var(--rule-strong);
+    font-size: 12.5px; color: var(--ink-3);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    letter-spacing: -0.005em;
+  }
+  .demo-tab.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* Wiki demo styles */
+  .wiki-shell { display: grid; grid-template-columns: 220px 1fr; height: 100%; }
+  .wiki-sidebar {
+    background: #ecebe7;
+    padding: 14px 10px;
+    border-right: 0.5px solid var(--rule);
+    display: flex; flex-direction: column; gap: 4px;
+    position: relative;
+  }
+  .wiki-content {
+    background: #fff;
+    padding: 28px 36px;
+    overflow: hidden;
+  }
+  .wiki-title-row {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .wiki-title-row h3 {
+    font-family: var(--font-display);
+    font-size: 28px; font-weight: 600;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+  .wiki-sub {
+    font-size: 13.5px; color: var(--ink-muted);
+    margin-bottom: 20px;
+  }
+  .wiki-index-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 11px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .wiki-index-row .ic {
+    width: 16px; height: 16px;
+    color: var(--ink-3); flex-shrink: 0;
+  }
+  .wiki-index-row .ic svg { width: 14px; height: 14px; }
+  .wiki-index-row .label { font-weight: 500; }
+  .wiki-index-row .meta { font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); }
+  .wiki-index-row.active { background: var(--bg-2); }
+
+  /* ===== Setup ===== */
+  .setup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .setup-step {
+    background: var(--surface);
+    border: 0.5px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column;
+  }
+  .setup-step-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 10px;
+  }
+  .setup-num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent-strong);
+    letter-spacing: 0.04em;
+  }
+  .setup-step h3 {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 600;
+    letter-spacing: -0.015em;
+    margin: 0;
+    line-height: 1.2;
+  }
+  .setup-step p {
+    font-size: 14.5px; line-height: 1.6;
+    color: var(--ink-3);
+    margin: 0 0 20px;
+    text-wrap: pretty;
+  }
+
+  .setup-card {
+    margin-top: auto;
+    background: var(--bg);
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .setup-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 4px 6px;
+    border-bottom: 0.5px dashed var(--rule);
+    margin-bottom: 4px;
+  }
+  .setup-card-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .setup-card-pill {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+
+  .setup-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 6px;
+    border-radius: 8px;
+  }
+  .setup-row-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .setup-row-icon svg { width: 14px; height: 14px; }
+  .setup-row-body { flex: 1; min-width: 0; }
+  .setup-row-name {
+    font-size: 13px; font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .setup-row-meta {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    margin-top: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .setup-row-status {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: #28a745;
+    background: rgba(40,167,69,0.10);
+    padding: 2px 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .setup-field {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 6px;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .setup-subhead {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--accent-strong);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 8px 6px 2px;
+    margin-top: 2px;
+    border-top: 0.5px dashed var(--rule);
+  }
+  .setup-subhead:first-of-type {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 2px;
+  }
+  .setup-field-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.02em;
+  }
+  .setup-field-value {
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 13px;
+  }
+  .setup-field-value.mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  .setup-hint {
+    margin-top: 4px;
+    padding: 8px 10px;
+    background: var(--bg-2);
+    border-radius: 7px;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    line-height: 1.45;
+  }
+
+  .setup-footer {
+    margin-top: 32px;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    background: var(--bg-2);
+    border: 0.5px solid var(--rule);
+    border-radius: 10px;
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .setup-footer svg { color: var(--ink-muted); flex-shrink: 0; }
+  .setup-footer code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink);
+    background: #fff;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 0.5px solid var(--rule-strong);
+  }
+
+  /* ===== Footer ===== */
+  .footer {
+    padding: 64px 0 48px;
+    border-top: 0.5px solid var(--rule);
+    background: var(--bg-2);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 48px;
+  }
+  .footer-col h4 {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0 0 16px;
+    font-weight: 600;
+  }
+  .footer-col ul {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .footer-col a {
+    font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .footer-col a:hover { color: var(--ink); }
+  .footer-tagline {
+    font-size: 13.5px;
+    color: var(--ink-3);
+    line-height: 1.5;
+    margin: 14px 0 0;
+    max-width: 280px;
+  }
+  .footer-bottom {
+    display: flex; justify-content: space-between;
+    border-top: 0.5px solid var(--rule);
+    padding-top: 24px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--ink-muted);
+  }
+  .footer-bottom a { color: inherit; }
+  .footer-bottom a:hover { color: var(--ink); }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 960px) {
+    .bento {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto auto auto;
+    }
+    .b-canvas, .b-chat, .b-wiki, .b-sources, .b-multimode, .b-export {
+      grid-column: auto; grid-row: auto;
+    }
+    .b-canvas, .b-chat, .b-multimode { grid-column: 1 / -1; }
+    .workflow-grid { grid-template-columns: 1fr; gap: 48px; }
+    .setup-grid { grid-template-columns: 1fr; gap: 20px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .container { padding: 0 20px; }
+    .hero { padding: 64px 0 32px; }
+    .nav-links { display: none; }
+    .bento { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#">
+      <span class="brand-dot"></span>
+      echo
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#workflow">How it works</a>
+      <a href="#setup">Setup</a>
+      <a href="#demo">Demo</a>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-primary" href="https://github.com/Beauuu-0826/echo-landing/releases/latest/download/echo_0.1.0-AArch64.dmg">Download</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="container">
+    <h1 class="hero-title">
+      A notebook that <em>thinks alongside</em> you.
+    </h1>
+    <p class="hero-sub">
+      Chat with a model about a repo, a paper, a stack trace. echo turns the
+      conversation into a hand-drawn canvas you can edit, a markdown wiki you
+      can search, and a memory you can come back to.
+    </p>
+
+    <div class="hero-cta">
+      <a class="btn btn-primary btn-lg" href="https://github.com/Beauuu-0826/echo-landing/releases/latest/download/echo_0.1.0-AArch64.dmg">
+        Download for macOS
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+      </a>
+      <a class="btn btn-lg" href="#demo">See demo</a>
+    </div>
+
+    <!-- ================= Product screenshot — Notebook view ================= -->
+    <div class="hero-shot">
+      <div class="hero-shot-inner">
+        <div class="mac">
+          <!-- chrome -->
+          <div class="mac-chrome">
+            <div class="mac-lights">
+              <div class="mac-light r"></div>
+              <div class="mac-light y"></div>
+              <div class="mac-light g"></div>
+            </div>
+            <div class="mac-sidebar-toggle">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="12" height="10" rx="1.5"/>
+                <path d="M6.5 3v10"/>
+              </svg>
+            </div>
+            <div class="mac-tabs">
+              <div class="mac-tab active">Notebook</div>
+              <div class="mac-tab">Wiki</div>
+            </div>
+            <div class="mac-spacer"></div>
+            <div class="mac-actions">
+              <div class="mac-view-toggle">
+                <div class="seg active">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 8a3 3 0 0 1 6 0v3M8 11v3"/></svg>
+                  View
+                </div>
+                <div class="seg">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m3 13 2-1L13 4l-1-1-8 8-1 2Z"/><path d="m11 3 2 2"/></svg>
+                  Edit
+                </div>
+              </div>
+              <div class="mac-btn-action">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 8a6 6 0 1 1-6-6"/><path d="M14 2v4h-4"/></svg>
+                Update Wiki
+              </div>
+              <div class="mac-btn-action ask">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 2v4M8 10v4M2 8h4M10 8h4"/></svg>
+                Ask
+              </div>
+            </div>
+          </div>
+          <!-- body -->
+          <div class="mac-body">
+            <!-- sidebar (matches real app) -->
+            <div class="mac-sidebar">
+              <div class="mac-nav-item">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 13 2-1L13 4l-1-1-8 8-1 2Z"/><path d="m11 3 2 2"/></svg>
+                New chat
+              </div>
+              <div class="mac-nav-item">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4"/><path d="m10 10 4 4"/></svg>
+                Search
+              </div>
+
+              <div class="mac-sidebar-section">
+                <span>Chats</span>
+                <div class="icons">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3 13 2-1L13 4l-1-1-8 8-1 2Z"/></svg>
+                </div>
+              </div>
+              <div class="mac-chat-item">
+                <span>vsag</span>
+                <span class="time">1 day ago</span>
+              </div>
+              <div class="mac-chat-item selected">
+                <span>paimon commit</span>
+                <span class="time">12 min. ago</span>
+              </div>
+              <div class="mac-chat-item">
+                <span>duckdb binder</span>
+                <span class="time">12 min. ago</span>
+              </div>
+              <div class="mac-chat-item">
+                <span>tokio poll loop</span>
+                <span class="time">yesterday</span>
+              </div>
+              <div class="mac-chat-item">
+                <span>flash-attn tile</span>
+                <span class="time">Mon</span>
+              </div>
+
+              <div class="mac-sidebar-footer">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.5 3.5l1.4 1.4M11.1 11.1l1.4 1.4M3.5 12.5l1.4-1.4M11.1 4.9l1.4-1.4"/></svg>
+                Settings
+              </div>
+            </div>
+
+            <!-- chat -->
+            <div class="mac-chat">
+              <div class="mac-sources-pill">
+                sources
+                <span class="count">4</span>
+              </div>
+
+              <div class="mac-msg">
+                <div class="mac-msg-head">
+                  <span class="avatar">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="2.5"/><path d="M3 14c0-2.5 2.2-4 5-4s5 1.5 5 4"/></svg>
+                  </span>
+                  <b>you</b><span class="t">21:59</span>
+                </div>
+                <div class="mac-msg-body">
+                  Help me trace the logic of this commit flow.
+                  <div class="mac-msg-img"></div>
+                </div>
+              </div>
+
+              <div class="mac-msg">
+                <div class="mac-msg-head">
+                  <span class="avatar ai">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2v4M8 10v4M2 8h4M10 8h4"/></svg>
+                  </span>
+                  <b>notebook</b><span class="t">21:59</span>
+                </div>
+                <div class="mac-msg-body">
+                  This is a two-phase atomic commit. The Writer prepares data
+                  first (S0→S1); then the Compactor runs a parallel cleanup.
+                  The commit itself is just a filesystem rename — which is
+                  what makes it atomic. Let me draw it.
+                </div>
+              </div>
+
+              <div class="mac-composer">
+                <div class="mac-composer-text">Ask, paste, or @mention a file…</div>
+                <div class="mac-composer-bar">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6 7 11a2.5 2.5 0 1 1-3.5-3.5L9 2A3.5 3.5 0 1 1 14 7l-5 5"/></svg>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><circle cx="6" cy="7" r="1"/><path d="m3 12 3-3 3 3 2-2 2 2"/></svg>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M11 8v1.5a1.5 1.5 0 0 0 3 0V8a6 6 0 1 0-2 4.5"/></svg>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3 13 2-1L13 4l-1-1-8 8-1 2Z"/></svg>
+                  <div class="spacer"></div>
+                  <span class="mac-model">Doubao-Seed-2.0-pro</span>
+                  <div class="mac-composer-send">
+                    generate
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m2 8 12-5-5 12-2-5-5-2Z"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- canvas — excalidraw hand-drawn -->
+            <div class="mac-canvas">
+              <div class="canv-title">two-phase atomic commit</div>
+              <div class="canv-sub">paimon · auto-drawn from chat</div>
+
+              <!-- Top row: parallel Writer + Compactor -->
+              <div class="ex-box tint-blue" style="top: 78px; left: 30px; width: 130px;">
+                Writer
+                <div class="meta">S0 · prepare</div>
+              </div>
+              <div class="ex-box tint-blue" style="top: 78px; left: 200px; width: 140px;">
+                Compactor
+                <div class="meta">S0 · load DVs</div>
+              </div>
+
+              <div class="ex-box" style="top: 156px; left: 30px; width: 130px;">
+                S1 · write files
+              </div>
+              <div class="ex-box" style="top: 156px; left: 200px; width: 140px;">
+                S1 · merge + clean
+              </div>
+
+              <!-- Diamond: conflict check -->
+              <div class="ex-box diamond tint-yellow" style="top: 240px; left: 90px; width: 180px; transform: rotate(-1deg);">
+                S2 · conflict check
+                <div class="meta">via lock provider</div>
+              </div>
+
+              <!-- Branches -->
+              <div class="ex-ellipse tint-green" style="top: 340px; left: 30px;">
+                atomic commit
+              </div>
+              <div class="ex-ellipse tint-red" style="top: 340px; left: 200px;">
+                rollback + retry
+              </div>
+
+              <!-- Sticky -->
+              <div class="ex-label" style="top: 24px; right: 22px; max-width: 180px; line-height: 1.3;">
+                ⚡ <b style="font-weight: 700;">TAKEAWAY</b><br/>
+                <span style="font-size: 12px; color: var(--ink-3);">
+                  atomic rename = full
+                  snapshot switch, no half states.
+                </span>
+              </div>
+
+              <!-- Connecting lines -->
+              <svg style="position: absolute; inset: 0; pointer-events: none;" width="100%" height="100%">
+                <defs>
+                  <marker id="hh" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+                    <path d="M0,0 L6,3.5 L0,7" fill="none" stroke="#0c0c0a" stroke-width="1.4" stroke-linejoin="round"/>
+                  </marker>
+                </defs>
+                <path d="M 95 122 Q 95 145 95 156" stroke="#0c0c0a" stroke-width="1.4" fill="none" marker-end="url(#hh)" stroke-linecap="round"/>
+                <path d="M 270 122 Q 270 145 270 156" stroke="#0c0c0a" stroke-width="1.4" fill="none" marker-end="url(#hh)" stroke-linecap="round"/>
+                <path d="M 95 200 Q 95 225 180 240" stroke="#0c0c0a" stroke-width="1.4" fill="none" marker-end="url(#hh)" stroke-linecap="round"/>
+                <path d="M 270 200 Q 270 225 200 240" stroke="#0c0c0a" stroke-width="1.4" fill="none" marker-end="url(#hh)" stroke-linecap="round"/>
+                <path d="M 145 286 Q 130 320 90 340" stroke="#0c0c0a" stroke-width="1.4" fill="none" marker-end="url(#hh)" stroke-linecap="round"/>
+                <path d="M 220 286 Q 240 320 240 340" stroke="#0c0c0a" stroke-width="1.4" fill="none" marker-end="url(#hh)" stroke-linecap="round" stroke-dasharray="5 4"/>
+                <text x="65" y="320" font-family="Caveat, cursive" font-size="13" fill="#5a5750">no conflict</text>
+                <text x="225" y="320" font-family="Caveat, cursive" font-size="13" fill="#5a5750">conflict</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES (Bento) ============ -->
+<section id="features" class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Features</span>
+      <h2 class="section-title">Everything you'd write down — captured in one place.</h2>
+      <p class="section-sub">
+        echo is a chat-first notebook with a hand-drawn canvas on the side.
+        You think out loud, paste evidence, and watch your understanding
+        crystallize.
+      </p>
+    </div>
+
+    <div class="bento">
+
+      <!-- Canvas (tall) -->
+      <div class="bento-card b-canvas">
+        <h3>A canvas that draws itself</h3>
+        <p>
+          Tell the model what you're learning. It renders a hand-drawn
+          diagram — boxes, arrows, code snippets, sticky notes — that you can
+          grab and edit by hand.
+        </p>
+        <div class="visual">
+          <div class="mini-canvas">
+            <div class="canv-title" style="font-size: 15px; margin-bottom: 0;">two-phase atomic commit</div>
+            <div class="canv-sub" style="font-size: 11px; margin-bottom: 8px;">paimon · auto-drawn from chat</div>
+
+            <div class="ex-box tint-blue" style="top: 46px; left: 10px; width: 86px; padding: 4px 7px; font-size: 11.5px;">
+              Writer
+              <div class="meta" style="font-size: 10px;">S0 · prepare</div>
+            </div>
+            <div class="ex-box tint-blue" style="top: 46px; left: 116px; width: 86px; padding: 4px 7px; font-size: 11.5px;">
+              Compactor
+              <div class="meta" style="font-size: 10px;">S0 · load DVs</div>
+            </div>
+
+            <div class="ex-box" style="top: 96px; left: 10px; width: 86px; padding: 4px 7px; font-size: 11px;">
+              S1 · write files
+            </div>
+            <div class="ex-box" style="top: 96px; left: 116px; width: 86px; padding: 4px 7px; font-size: 11px;">
+              S1 · merge + clean
+            </div>
+
+            <div class="ex-box diamond tint-yellow" style="top: 144px; left: 42px; width: 130px; padding: 4px 8px; font-size: 11px; transform: rotate(-1deg);">
+              S2 · conflict check
+              <div class="meta" style="font-size: 9.5px;">via lock provider</div>
+            </div>
+
+            <div class="ex-ellipse tint-green" style="bottom: 6px; left: 6px; padding: 3px 9px; font-size: 11px;">
+              atomic commit
+            </div>
+            <div class="ex-ellipse tint-red" style="bottom: 6px; right: 6px; padding: 3px 9px; font-size: 11px;">
+              rollback + retry
+            </div>
+
+            <svg style="position: absolute; inset: 0; pointer-events: none;" width="100%" height="100%">
+              <defs>
+                <marker id="hhmini" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
+                  <path d="M0,0 L5,3 L0,6" fill="none" stroke="#0c0c0a" stroke-width="1.2" stroke-linejoin="round"/>
+                </marker>
+              </defs>
+              <path d="M 53 76 Q 53 86 53 96" stroke="#0c0c0a" stroke-width="1.2" fill="none" marker-end="url(#hhmini)" stroke-linecap="round"/>
+              <path d="M 159 76 Q 159 86 159 96" stroke="#0c0c0a" stroke-width="1.2" fill="none" marker-end="url(#hhmini)" stroke-linecap="round"/>
+              <path d="M 53 126 Q 53 140 100 148" stroke="#0c0c0a" stroke-width="1.2" fill="none" marker-end="url(#hhmini)" stroke-linecap="round"/>
+              <path d="M 159 126 Q 159 140 112 148" stroke="#0c0c0a" stroke-width="1.2" fill="none" marker-end="url(#hhmini)" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat (wide) -->
+      <div class="bento-card b-chat">
+        <h3>Talk it through, with sources</h3>
+        <p>
+          Paste screenshots, code, papers, repo paths. echo holds them as
+          persistent context — you describe what you see once, then keep
+          riffing.
+        </p>
+        <div class="visual visual-chat">
+          <div class="v-msg">
+            <span class="v-avatar ai">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2v4M8 10v4M2 8h4M10 8h4"/></svg>
+            </span>
+            <div class="v-msg-body">
+              <div class="v-msg-meta"><b>notebook</b>14:03</div>
+              <div class="v-msg-text">
+                K and V carry redundant info across heads. Tying them in small
+                groups barely hurts quality — but the KV cache shrinks <b>g×</b>.
+              </div>
+            </div>
+          </div>
+          <div class="v-msg">
+            <span class="v-avatar">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="2.5"/><path d="M3 14c0-2.5 2.2-4 5-4s5 1.5 5 4"/></svg>
+            </span>
+            <div class="v-msg-body">
+              <div class="v-msg-meta"><b>you</b>14:04</div>
+              <div class="v-msg-text">
+                Is g = 8 reasonable for a 7B model? Show me the tradeoff curve.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wiki (index style) -->
+      <div class="bento-card b-wiki">
+        <h3>Every note becomes a wiki page</h3>
+        <p>
+          Save a session and it shows up in your wiki — auto-summary,
+          backlinks, ask across the whole graph.
+        </p>
+        <div class="visual visual-wiki">
+          <div class="v-wiki-row">
+            <span class="v-wiki-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/></svg></span>
+            <span class="v-wiki-name">Ambiguity Handling</span>
+            <span class="v-wiki-meta">225 w</span>
+          </div>
+          <div class="v-wiki-row active">
+            <span class="v-wiki-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/></svg></span>
+            <span class="v-wiki-name">Two-phase Atomic Commit</span>
+            <span class="v-wiki-meta">537 w</span>
+          </div>
+          <div class="v-wiki-row">
+            <span class="v-wiki-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/></svg></span>
+            <span class="v-wiki-name">Catalog Lookup</span>
+            <span class="v-wiki-meta">386 w</span>
+          </div>
+          <div class="v-wiki-row">
+            <span class="v-wiki-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/></svg></span>
+            <span class="v-wiki-name">Lazy Binding Strategy</span>
+            <span class="v-wiki-meta">266 w</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sources -->
+      <div class="bento-card b-sources">
+        <h3>One context, many sources</h3>
+        <p>
+          Attach a PDF, a repo, a URL. echo carries them through every turn
+          so the model stays grounded.
+        </p>
+        <div class="visual visual-sources">
+          <div class="v-src">
+            <span class="v-src-icon">PDF</span>
+            <span class="name">gqa.pdf</span>
+            <span class="meta">12 pages</span>
+          </div>
+          <div class="v-src">
+            <span class="v-src-icon">GH</span>
+            <span class="name">acme/compiler-core</span>
+            <span class="meta">main</span>
+          </div>
+          <div class="v-src">
+            <span class="v-src-icon">URL</span>
+            <span class="name">arxiv:2305.13245</span>
+            <span class="meta">1h ago</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi-mode (wide) -->
+      <div class="bento-card b-multimode">
+        <h3>Bring your own model. Bring your own files.</h3>
+        <p>
+          Plug in any provider — OpenAI, Anthropic, Doubao, a local llama.cpp.
+          Your notes live as markdown in a folder you control. Open them in
+          Obsidian tomorrow if you want.
+        </p>
+        <div class="visual visual-modes">
+          <div class="v-mode">
+            <div class="v-mode-icon">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4 2 8l3 4M11 4l3 4-3 4"/></svg>
+            </div>
+            <strong>Bring your model</strong>
+            <span>OpenAI · Anthropic · local</span>
+          </div>
+          <div class="v-mode">
+            <div class="v-mode-icon accent">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h7l3 3v9H3z"/><path d="M5 7h6M5 10h6M5 4.5h3"/></svg>
+            </div>
+            <strong>Plain markdown</strong>
+            <span>~/notes/ · git-friendly</span>
+          </div>
+          <div class="v-mode">
+            <div class="v-mode-icon blue">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 9a3 3 0 0 0 4 0l2-2a3 3 0 0 0-4-4L8 4"/><path d="M9 7a3 3 0 0 0-4 0L3 9a3 3 0 0 0 4 4l1-1"/></svg>
+            </div>
+            <strong>MCP tools</strong>
+            <span>read repo · fetch paper · trace stack</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="bento-card b-export">
+        <h3>Owns nothing of yours</h3>
+        <p>
+          Sessions are markdown + a tiny canvas JSON. Open them in any editor.
+        </p>
+        <div class="visual visual-export">
+          <div class="v-export-row">
+            <strong>two-phase-commit.md</strong>
+          </div>
+          <div class="v-export-row">
+            <strong>two-phase-commit.canvas.json</strong>
+          </div>
+          <div class="v-export-row" style="color: var(--ink-muted);">
+            ~/notes/paimon/
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ WORKFLOW ============ -->
+<section id="workflow" class="section" style="background: var(--bg-2); padding: 96px 0;">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">How it works</span>
+      <h2 class="section-title">Read. Talk. Save. Ask later.</h2>
+      <p class="section-sub">
+        echo is for the part of learning that happens between reading and
+        understanding — when you're trying to fit something new into your head.
+      </p>
+    </div>
+
+    <div class="workflow-grid">
+
+      <div class="workflow-step">
+        <h3>Drop in evidence</h3>
+        <p>
+          Paste a screenshot, a paper, a stack trace, a repo path. echo holds
+          it for the whole session — you describe what you see, not what you
+          already explained two messages ago.
+        </p>
+        <div class="workflow-shot">
+          <div style="position: absolute; inset: 0; padding: 20px;">
+            <div style="font-size: 11.5px; color: var(--ink-muted); margin-bottom: 6px;"><b style="color: var(--ink); font-size: 12px;">you</b> · 09:41</div>
+            <div style="font-size: 13.5px; color: var(--ink); line-height: 1.55; margin-bottom: 12px;">
+              I paused the parser mid-dispatch. Here's the stack and the lookup table:
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <div style="width: 92px; height: 58px; background: linear-gradient(135deg, #d8d4cb, #ebe8e1); border-radius: 6px; border: 0.5px solid var(--rule-strong); display: flex; align-items: end; padding: 4px 6px; font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-3);">call-stack.png</div>
+              <div style="width: 92px; height: 58px; background: linear-gradient(135deg, #d8d4cb, #ebe8e1); border-radius: 6px; border: 0.5px solid var(--rule-strong); display: flex; align-items: end; padding: 4px 6px; font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-3);">node.ts</div>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="font-family: var(--font-mono); font-size: 10.5px; padding: 3px 8px; background: var(--bg-2); border-radius: 5px; color: var(--ink-3);">@src/parse/node.ts:47</span>
+              <span style="font-family: var(--font-mono); font-size: 10.5px; padding: 3px 8px; background: var(--bg-2); border-radius: 5px; color: var(--ink-3);">📁 acme/compiler-core</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow-step">
+        <h3>Call your MCP tools</h3>
+        <p>
+          Register any MCP server — repo readers, paper fetchers, stack
+          tracers, your own. echo calls them mid-conversation, streams the
+          results back into context, and keeps reasoning.
+        </p>
+        <div class="workflow-shot">
+          <div style="position: absolute; inset: 0; padding: 18px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="background: var(--bg-2); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--ink); line-height: 1.5;">
+              <div style="font-size: 10.5px; color: var(--ink-muted); margin-bottom: 4px;"><b style="color: var(--ink); font-size: 11.5px;">notebook</b> · 09:42</div>
+              Let me pull the dispatch table and the call frames before I answer.
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="font-family: var(--font-mono); font-size: 10.5px; padding: 3px 8px; background: #fff; border: 0.5px solid var(--rule-strong); border-radius: 5px; color: var(--ink-3);"><b style="color: var(--ink);">repo-mcp</b> · read_file</span>
+              <span style="font-family: var(--font-mono); font-size: 10.5px; padding: 3px 8px; background: #fff; border: 0.5px solid var(--rule-strong); border-radius: 5px; color: var(--ink-3);"><b style="color: var(--ink);">debug-mcp</b> · trace_stack</span>
+              <span style="font-family: var(--font-mono); font-size: 10.5px; padding: 3px 8px; background: #fff; border: 0.5px solid var(--rule-strong); border-radius: 5px; color: var(--ink-3);"><b style="color: var(--ink);">arxiv-mcp</b> · fetch</span>
+            </div>
+            <div style="background: var(--bg-2); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; color: var(--ink); line-height: 1.5; font-family: var(--font-mono);">
+              <div style="font-size: 10.5px; color: var(--ink-muted); margin-bottom: 4px; font-family: var(--font-sans);"><b style="color: var(--ink); font-size: 11.5px; font-family: var(--font-sans);">tool · repo-mcp</b> · 09:42</div>
+              ✓ read 3 files · 184 lines
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow-step">
+        <h3>Push it to your wiki</h3>
+        <p>
+          When the idea clicks, save the session. echo writes a markdown page,
+          summarizes it, and links it to related notes. Search across the
+          whole graph — or just ask it later.
+        </p>
+        <div class="workflow-shot">
+          <div style="position: absolute; inset: 0; background: #fff; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 2px;">Wiki · Index</div>
+            <div style="font-size: 11px; color: var(--ink-muted); margin-bottom: 6px;">8 concept notes · auto-linked</div>
+
+            <div style="display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; font-size: 12px;">
+              <span style="width: 12px; height: 12px; color: var(--ink-muted); display: inline-flex;"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/></svg></span>
+              <span style="flex: 1; color: var(--ink); font-weight: 500;">Ambiguity Handling</span>
+              <span style="font-family: var(--font-mono); font-size: 10px; color: var(--ink-muted);">225 w</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; font-size: 12px; background: var(--bg-2);">
+              <span style="width: 12px; height: 12px; color: var(--accent-strong); display: inline-flex;"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/></svg></span>
+              <span style="flex: 1; color: var(--ink); font-weight: 600;">Two-phase Atomic Commit <span style="color: var(--accent-strong); font-size: 10px; font-weight: 600; margin-left: 4px;">NEW</span></span>
+              <span style="font-family: var(--font-mono); font-size: 10px; color: var(--ink-muted);">537 w</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; font-size: 12px;">
+              <span style="width: 12px; height: 12px; color: var(--ink-muted); display: inline-flex;"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/></svg></span>
+              <span style="flex: 1; color: var(--ink); font-weight: 500;">Catalog Lookup</span>
+              <span style="font-family: var(--font-mono); font-size: 10px; color: var(--ink-muted);">386 w</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; font-size: 12px;">
+              <span style="width: 12px; height: 12px; color: var(--ink-muted); display: inline-flex;"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/></svg></span>
+              <span style="flex: 1; color: var(--ink); font-weight: 500;">Lazy Binding Strategy</span>
+              <span style="font-family: var(--font-mono); font-size: 10px; color: var(--ink-muted);">266 w</span>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 8px; font-size: 10.5px; color: var(--ink-muted); display: flex; gap: 8px; align-items: center;">
+              <span style="font-family: var(--font-mono); padding: 2px 6px; background: var(--bg-2); border-radius: 4px;">~/notes/paimon/two-phase-commit.md</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ SETUP ============ -->
+<section id="setup" class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Setup</span>
+      <h2 class="section-title">Four steps to get echo running.</h2>
+      <p class="section-sub">
+        Configure your model providers, plug in MCP tools, and pick the models
+        you want echo to use for sources and wiki generation. Everything lives
+        in one settings panel.
+      </p>
+    </div>
+
+    <div class="setup-grid">
+
+      <!-- Step 1: LLM Provider -->
+      <div class="setup-step">
+        <div class="setup-step-head">
+          <span class="setup-num">01</span>
+          <h3>Configure LLM Provider</h3>
+        </div>
+        <p>
+          Add at least one provider — OpenAI, Anthropic, Doubao, DeepSeek, or
+          any OpenAI-compatible endpoint. Paste your API key, pick a base URL,
+          and echo verifies the connection in place.
+        </p>
+        <div class="setup-card">
+          <div class="setup-card-head">
+            <span class="setup-card-title">LLM Providers</span>
+            <span class="setup-card-pill">3 active</span>
+          </div>
+          <div class="setup-row">
+            <span class="setup-row-icon" style="background: #10a37f;">A</span>
+            <div class="setup-row-body">
+              <div class="setup-row-name">Anthropic</div>
+              <div class="setup-row-meta">claude-sonnet-4-6 · claude-opus-4-7</div>
+            </div>
+            <span class="setup-row-status">ok</span>
+          </div>
+          <div class="setup-row">
+            <span class="setup-row-icon" style="background: #3478f6;">O</span>
+            <div class="setup-row-body">
+              <div class="setup-row-name">OpenAI</div>
+              <div class="setup-row-meta">gpt-5 · gpt-5-mini</div>
+            </div>
+            <span class="setup-row-status">ok</span>
+          </div>
+          <div class="setup-row">
+            <span class="setup-row-icon" style="background: #4285f4;">G</span>
+            <div class="setup-row-body">
+              <div class="setup-row-name">Gemini</div>
+              <div class="setup-row-meta">gemini-2.5-pro · gemini-2.5-flash</div>
+            </div>
+            <span class="setup-row-status">ok</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: MCP Servers -->
+      <div class="setup-step">
+        <div class="setup-step-head">
+          <span class="setup-num">02</span>
+          <h3>Add MCP Servers</h3>
+        </div>
+        <p>
+          Register any MCP server — repo readers, paper fetchers, your own
+          custom tools. echo loads them on launch and the model can call them
+          mid-conversation.
+        </p>
+        <div class="setup-card">
+          <div class="setup-card-head">
+            <span class="setup-card-title">MCP Servers</span>
+            <span class="setup-card-pill">4 connected</span>
+          </div>
+          <div class="setup-row">
+            <span class="setup-row-icon" style="background: var(--ink); color: #fff;">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 9a3 3 0 0 0 4 0l2-2a3 3 0 0 0-4-4L8 4"/><path d="M9 7a3 3 0 0 0-4 0L3 9a3 3 0 0 0 4 4l1-1"/></svg>
+            </span>
+            <div class="setup-row-body">
+              <div class="setup-row-name">repo-mcp</div>
+              <div class="setup-row-meta">read_file · search · list</div>
+            </div>
+            <span class="setup-row-status">ok</span>
+          </div>
+          <div class="setup-row">
+            <span class="setup-row-icon" style="background: var(--ink); color: #fff;">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 9a3 3 0 0 0 4 0l2-2a3 3 0 0 0-4-4L8 4"/><path d="M9 7a3 3 0 0 0-4 0L3 9a3 3 0 0 0 4 4l1-1"/></svg>
+            </span>
+            <div class="setup-row-body">
+              <div class="setup-row-name">arxiv-mcp</div>
+              <div class="setup-row-meta">fetch · search</div>
+            </div>
+            <span class="setup-row-status">ok</span>
+          </div>
+          <div class="setup-row">
+            <span class="setup-row-icon" style="background: var(--ink); color: #fff;">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 9a3 3 0 0 0 4 0l2-2a3 3 0 0 0-4-4L8 4"/><path d="M9 7a3 3 0 0 0-4 0L3 9a3 3 0 0 0 4 4l1-1"/></svg>
+            </span>
+            <div class="setup-row-body">
+              <div class="setup-row-name">debug-mcp</div>
+              <div class="setup-row-meta">trace_stack · run</div>
+            </div>
+            <span class="setup-row-status">ok</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Source Service -->
+      <div class="setup-step">
+        <div class="setup-step-head">
+          <span class="setup-num">03</span>
+          <h3>Configure Source Service</h3>
+        </div>
+        <p>
+          Pick the VLM that reads screenshots and diagrams, and the embedding
+          model that indexes everything you attach so echo can search it later.
+        </p>
+        <div class="setup-card">
+          <div class="setup-card-head">
+            <span class="setup-card-title">Source Service</span>
+            <span class="setup-card-pill">ready</span>
+          </div>
+          <div class="setup-subhead">VLM</div>
+          <div class="setup-field">
+            <span class="setup-field-label">Provider</span>
+            <span class="setup-field-value">OpenAI</span>
+          </div>
+          <div class="setup-field">
+            <span class="setup-field-label">Model</span>
+            <span class="setup-field-value mono">gpt-5-mini</span>
+          </div>
+          <div class="setup-subhead">Embedding</div>
+          <div class="setup-field">
+            <span class="setup-field-label">Provider</span>
+            <span class="setup-field-value">OpenAI</span>
+          </div>
+          <div class="setup-field">
+            <span class="setup-field-label">Model</span>
+            <span class="setup-field-value mono">text-embedding-3-large</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Wiki Model -->
+      <div class="setup-step">
+        <div class="setup-step-head">
+          <span class="setup-num">04</span>
+          <h3>Pick Wiki Model</h3>
+        </div>
+        <p>
+          Choose the LLM that writes wiki summaries and answers questions, and
+          the embedding model that powers backlinks and graph-wide search.
+        </p>
+        <div class="setup-card">
+          <div class="setup-card-head">
+            <span class="setup-card-title">Wiki Model</span>
+            <span class="setup-card-pill">ready</span>
+          </div>
+          <div class="setup-subhead">LLM</div>
+          <div class="setup-field">
+            <span class="setup-field-label">Provider</span>
+            <span class="setup-field-value">Anthropic</span>
+          </div>
+          <div class="setup-field">
+            <span class="setup-field-label">Model</span>
+            <span class="setup-field-value mono">claude-sonnet-4-6</span>
+          </div>
+          <div class="setup-subhead">Embedding</div>
+          <div class="setup-field">
+            <span class="setup-field-label">Provider</span>
+            <span class="setup-field-value">OpenAI</span>
+          </div>
+          <div class="setup-field">
+            <span class="setup-field-label">Model</span>
+            <span class="setup-field-value mono">text-embedding-3-large</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO ============ -->
+<section id="demo" class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Demo</span>
+      <h2 class="section-title">The actual app, captured in pixels.</h2>
+      <p class="section-sub">
+        Same chrome, same canvas, same wiki. Click around — when you're ready,
+        download it and start with your own notes.
+      </p>
+    </div>
+
+    <div class="demo-tabs">
+      <div class="demo-tab active" data-img="assets/notebook1.png">Notebook · example 1</div>
+      <div class="demo-tab" data-img="assets/notebook2.png">Notebook · example 2</div>
+      <div class="demo-tab" data-img="assets/wiki-index.png">Wiki · Index</div>
+      <div class="demo-tab" data-img="assets/wiki-source.png">Wiki · Sources</div>
+      <div class="demo-tab" data-img="assets/wiki-detail.png">Wiki · Detail</div>
+      <div class="demo-tab" data-img="assets/wiki-query.png">Wiki · Ask</div>
+    </div>
+
+    <div class="demo-frame">
+      <div class="demo-inner">
+        <img id="demo-img" src="assets/notebook1.png" alt="echo screenshot"
+          style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center;" />
+      </div>
+    </div>
+
+
+  </div>
+</section>
+
+
+  <script>
+    document.querySelectorAll('.demo-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const img = tab.getAttribute('data-img');
+        if (img) document.getElementById('demo-img').src = img;
+      });
+    });
+  </script>
+</body>
+</html>
